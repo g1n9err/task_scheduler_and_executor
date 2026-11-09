@@ -1,0 +1,301 @@
+Project 2 — Task Scheduler and Executor
+C++ Practical Examination | Implementation time: 5 hours
+1. Project Description
+The objective of this project is to develop a Task Scheduler and Executor using the C++ programming language. The application must provide a mechanism for creating, organizing, scheduling, executing, and managing different types of tasks.
+A task represents an independent operation that can be executed by the system. Different tasks may perform different actions, require different parameters, and produce different results.
+For example, one task might perform a mathematical calculation, another might display a message, while a third might simulate a time-consuming operation.
+Although these tasks perform different operations, the application must be capable of managing them through a common interface.
+The system must also support priority-based scheduling, allowing tasks with higher priorities to execute before tasks with lower priorities. When multiple tasks have the same priority, their execution order must correspond to the order in which they were registered.
+Each task must have a clearly defined execution state, and the application must provide mechanisms for cancelling tasks, recording execution results, and handling execution failures.
+A failure in one task must not prevent other valid tasks from executing.
+The application must be designed using object-oriented programming principles, design patterns, smart pointers, move semantics, and exception handling.
+The system must operate sequentially. Multithreading, asynchronous execution, real-time scheduling, and operating-system process management are not required.
+A console-based application is sufficient.
+2. Functional Requirements
+2.1. Task Types
+The system must support at least three different types of tasks.
+Calculation Task
+A task that performs a mathematical operation using two numeric operands.
+At minimum, the following operations must be supported:
+Addition
+Subtraction
+Multiplication
+Division
+Each calculation task must store the required operands and the selected mathematical operation.
+After execution, the task must produce a result that can be recorded and displayed.
+Division by zero must be treated as an execution failure.
+Message Task
+A task that stores a text message and produces that message when executed.
+For example, a task might produce:
+Task executed: Hello from C++!
+The message must be provided when the task is created.
+Simulated Delay Task
+A task representing an operation that conceptually requires a specified amount of time.
+The task must store a nonnegative duration value in milliseconds.
+When executed, the task must report the configured duration without actually suspending the application.
+For example:
+Task executed: Simulated operation of 2000 ms completed.
+Calling sleep(), std::this_thread::sleep_for(), or similar functions is not required.
+Students may implement additional task types, but the three described above are mandatory.
+2.2. Task Properties
+Every task must contain the following information:
+Property
+Description
+Task ID
+Unique identifier
+Priority
+Integer representing execution priority
+Type
+Category of task
+Status
+Current execution state
+Parameters  
+Data needed for execution
+Result
+Information produced after execution
+
+Tasks must support the following states:
+Task state transitions. Completed, Failed, and Cancelled are terminal states.
+Pending: The task has been registered but has not yet been executed.
+Completed: The task has executed successfully.
+Failed: The task was executed but could not complete successfully.
+Cancelled: The task was cancelled before execution.
+A newly registered task must initially have the Pending status.
+Once a task reaches Completed, Failed, or Cancelled, it must not execute again.
+2.3. Task Registration
+The application must allow registering tasks in the scheduler.
+When registering a task, the system must:
+Validate the task's unique identifier.
+Verify that another task with the same ID does not already exist.
+Store the task and its required information.
+Set the task status to Pending.
+Preserve the registration order for scheduling purposes.
+Task IDs must remain unique for the lifetime of the scheduler, including after tasks have been completed or cancelled.
+The scheduler must be able to hold tasks of different concrete types simultaneously.
+2.4. Priority-Based Scheduling
+The scheduler must determine the execution order using task priorities.
+A task with a higher numeric priority must execute before a task with a lower numeric priority.
+For example:
+Task ID
+Priority
+Registration order
+T001
+2
+1
+T002
+5
+2
+T003
+3
+3
+T004
+5
+4
+T005
+1
+5
+
+The expected execution order is:
+T002                Priority 5
+T004                Priority 5
+T003                Priority 3
+T001                Priority 2
+T005                Priority 1
+When priorities are equal, the task registered earlier must execute first.
+The scheduler must support adding new tasks while other previously registered tasks have already completed.
+There is no requirement to support preemption or to interrupt a task while it is executing.
+2.5. Task Execution
+The application must support executing:
+The next pending task according to scheduling rules.
+All remaining pending tasks sequentially.
+During execution, the scheduler must invoke the operation associated with the concrete task type.
+After successful execution:
+The task must transition to Completed.
+The execution result must be recorded.
+The task must no longer be eligible for execution.
+If an exception occurs while executing a task:
+The exception must be handled at the scheduler level.
+The task must transition to Failed.
+Information about the failure must be recorded.
+The scheduler must remain operational.
+When executing all pending tasks, failure of one task must not prevent the scheduler from continuing with the remaining tasks.
+2.6. Task Cancellation
+The application must allow cancelling tasks using their unique identifiers.
+Cancellation is permitted only when a task is in the Pending state.
+The following rules apply:
+Cancelling a Pending task changes its state to Cancelled.
+Cancelled tasks must never execute.
+Completed tasks cannot be cancelled.
+Failed tasks cannot be cancelled.
+Attempting to cancel a nonexistent task must produce an error.
+Cancelling one task must not modify the status or execution order of other pending tasks, except that the cancelled task is skipped.
+2.7. Execution History and Task Information
+The application must maintain information about task execution outcomes.
+For every task that has been executed, the system must record:
+Task ID
+Task type
+Priority
+Final execution status
+Execution result or failure description
+Cancelled tasks must also remain visible in the system with their Cancelled status.
+The application must provide operations to:
+Display all registered tasks.
+Find a task by ID.
+Display the current task status.
+Display the history of executed tasks.
+Display the number of tasks in each state.
+Execution history must reflect the actual order in which tasks were executed, not their registration order.
+3. Technical and Architectural Requirements
+3.1. Object-Oriented Programming
+The application must demonstrate the four fundamental OOP principles.
+Abstraction
+Different task types must expose a common interface for execution.
+The scheduler must not need to know which specific task type it is executing.
+Inheritance
+Concrete task classes must inherit from a common abstract base class.
+Encapsulation
+The internal state of tasks, including their execution status, must not be freely modifiable from outside the relevant class interfaces.
+Polymorphism
+The execution mechanism must use runtime polymorphism.
+Calling an execution operation through a base-class interface must invoke the appropriate concrete task implementation.
+3.2. Design Patterns
+The following design patterns are mandatory.
+Command Pattern
+Each task must represent an encapsulated executable operation.
+The task object must contain the necessary information to perform its operation, allowing the scheduler to execute different tasks through a uniform interface.
+The scheduler must not implement the internal calculation, message, or simulated-delay logic itself.
+Factory Method / Factory Pattern
+Task creation must be handled through a dedicated creation mechanism.
+The application must support creating the appropriate task type using provided task information.
+For example, requesting a calculation task must create an instance of the calculation task implementation.
+The exact form of the factory is left to the student.
+3.3. Smart Pointers and Resource Management
+The scheduler must own its tasks using std::unique_ptr or another appropriately justified ownership model.
+At minimum:
+Task lifetimes must be controlled safely.
+Transferring task ownership to the scheduler must use move semantics.
+Task objects must not be copied accidentally.
+Polymorphic destruction must work correctly.
+Raw owning pointers and unnecessary manual memory management must be avoided.
+Students must ensure that completed or cancelled tasks remain available for information retrieval without requiring unsafe references or pointers.
+3.4. Move Semantics and Value Categories
+The project must meaningfully demonstrate move semantics.
+For example, a newly created task may be represented by a std::unique_ptr<Task>, and ownership must be transferred to the scheduler.
+Students must use appropriate C++ language mechanisms for transferring move-only resources and maintaining valid object states.
+The project does not require implementing a custom move constructor if the chosen class design does not need one.
+3.5. Exception Handling
+The application must handle invalid operations and execution failures.
+At minimum, exceptions must be used to report:
+Duplicate task IDs.
+Attempts to cancel nonexistent tasks.
+Attempts to cancel non-pending tasks.
+Invalid task parameters.
+Task execution failures, such as division by zero.
+The distinction between registration failure and execution failure must be preserved.
+For example, a task with a valid type and ID but an arithmetic operation that later divides by zero may be registered successfully and then transition to Failed during execution.
+Invalid registration must not insert a partially constructed task.
+3.6. SOLID Principles
+The application must follow reasonable SOLID design practices.
+In particular:
+Each concrete task must be responsible for performing its own operation.
+The scheduler must primarily manage task ordering, lifecycle, and execution coordination.
+Task creation must remain separate from scheduling.
+Adding a new task type must not require rewriting the scheduling algorithm.
+The scheduler should depend on a task abstraction rather than concrete task classes.
+Students must avoid implementing the entire application as one large class with a conditional branch for every task type.
+4. Implementation Constraints
+The following conditions are mandatory:
+Use C++17 or a newer standard.
+Use the C++ Standard Library.
+Implement at least one abstract task base class and three concrete task classes.
+Implement runtime polymorphism using virtual functions.
+Implement the Command pattern and a task factory.
+Use smart pointers to manage task objects.
+Demonstrate move semantics when transferring ownership.
+Implement deterministic priority-based scheduling.
+Support task cancellation and execution history.
+Handle invalid operations through exceptions.
+Keep task execution sequential and single-threaded.
+Separate task and scheduler logic from console input/output.
+Avoid undefined behavior and resource leaks.
+Students may use standard containers such as std::vector, std::map, std::unordered_map, and std::priority_queue.
+The exact data structures, class names, and implementation details are left to the student, provided all functional and architectural requirements are satisfied.
+5. Expected Application Behavior
+The following examples illustrate the expected application behavior. The exact console interface is not mandatory.
+Example 1 -- Task registration
+
+
+> add calculation T001 5 add 10 20 
+Task T001 registered successfully. 
+
+
+> add message T002 3 "Hello from C++"
+Task T002 registered successfully. 
+
+
+> add delay T003 2 2000 
+Task T003 registered successfully. 
+
+
+> add calculation T004 4 divide 10 0 
+Task T004 registered successfully. 
+
+
+> add message T001 1 "Duplicate" Error: 
+Task ID already exists.
+
+
+Example 2 -- Execution and failure handling
+
+
+> execute_all
+Executing T001 (priority 5)
+Result: 30 
+Status: Completed 
+
+Executing T004 (priority 4) 
+Error: Division by zero 
+Status: Failed 
+
+
+Executing T002 (priority 3) 
+Result: Hello from C++ 
+Status: Completed 
+
+Executing T003 (priority 2) 
+Result: Simulated delay of 2000 ms 
+Status: Completed 
+All pending tasks processed.
+
+Example 3 -- Cancellation
+
+
+> add message T005 8 "Pending task"
+Task T005 registered successfully. 
+
+
+> cancel T005 
+Task T005 cancelled successfully. 
+
+
+> execute_all 
+No pending tasks available. 
+
+
+> cancel T001 
+Error: Only pending tasks can be cancelled. 
+
+
+> status T005 
+Task T005 | Cancelled
+
+
+6. Deliverables
+The student must submit:
+All required C++ source files and header files.
+A working main() function demonstrating the scheduler.
+A README.md file containing compilation instructions, execution instructions, and a brief explanation of the application's main components.
+Repeatable demonstration scenarios for the mandatory evaluation cases.
+The program must compile using a standard C++ compiler such as g++ or clang++.
+
+
