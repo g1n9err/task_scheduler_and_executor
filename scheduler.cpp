@@ -7,7 +7,7 @@
 
 namespace {
 
-bool hasHigherPriority(const Task* a, const Task* b) {
+bool hasHigherPriority(const Task* a, const Task* b) noexcept {
     return a->priority() > b->priority();
 }
 

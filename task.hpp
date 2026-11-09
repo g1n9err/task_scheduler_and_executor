@@ -16,11 +16,11 @@ class Task {
     std::string m_id;
     int m_priority;
     TaskStatus m_status;
-    std::string m_result;std::string toString(TaskStatus status);
+    std::string m_result;
 
 public:
     Task(std::string id, int priority);
-    virtual ~Task() = default;
+    virtual ~Task() noexcept = default;
 
     Task(const Task&) = delete;
     Task& operator=(const Task&) = delete;
@@ -31,16 +31,16 @@ public:
     virtual std::string parameters() const = 0;
 
     void markFailed(const std::string& reason);
-    void markCancelled();
+    void markCancelled() noexcept;
 
-    const std::string& id() const { return m_id; }
-    int priority() const { return m_priority; }
-    TaskStatus status() const { return m_status; }
-    const std::string& result() const { return m_result; }
+    const std::string& id() const noexcept { return m_id; }
+    int priority() const noexcept { return m_priority; }
+    TaskStatus status() const noexcept { return m_status; }
+    const std::string& result() const noexcept { return m_result; }
 
 protected:
-    void setStatus(TaskStatus status);
-    void setResult(std::string result);
+    void setStatus(TaskStatus status) noexcept;
+    void setResult(std::string result) noexcept;
 };
 
 class CalculationTask : public Task {

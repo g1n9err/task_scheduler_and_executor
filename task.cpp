@@ -19,16 +19,16 @@ Task::Task(std::string id, int priority)
       m_priority(priority),
       m_status(TaskStatus::Pending) {}
 
-void Task::setStatus(TaskStatus status) { m_status = status; }
+void Task::setStatus(TaskStatus status) noexcept { m_status = status; }
 
-void Task::setResult(std::string result) { m_result = std::move(result); }
+void Task::setResult(std::string result) noexcept { m_result = std::move(result); }
 
 void Task::markFailed(const std::string& reason) {
     setResult(reason);
     setStatus(TaskStatus::Failed);
 }
 
-void Task::markCancelled() {
+void Task::markCancelled() noexcept {
     setStatus(TaskStatus::Cancelled);
 }
 
